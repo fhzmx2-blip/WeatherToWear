@@ -1,29 +1,42 @@
 package com.weather.WeatherToWear.client;
 
+
+
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+@Component
 public class OpenMeteoAPIClient {
 // https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m&timezone=Asia%2FSeoul&forecast_days=1
-/*
 
-    "https://api.open-meteo.com/v1/forecast"
-    +"?latitude="+a //위도
-    +"&longitude="+b //경도
-    +"&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
-    +"precipitation,precipitation_probability,weather_code,wind_speed_10m"
-    +"&timezone=Asia%2FSeoul&forecast_days=1"
+    public String getWeatherData(double latitude, double longitude) throws IOException, InterruptedException {
 
- */
+        String URL = "https://api.open-meteo.com/v1/forecast"
+                + "?latitude=" + latitude //위도
+                + "&longitude=" + longitude //경도
+                + "&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
+                + "precipitation,precipitation_probability,weather_code,wind_speed_10m"
+                + "&timezone=Asia%2FSeoul&forecast_days=1";
 
-    double a = 37.5665;
-    double b = 126.9780;
-    //a와 b값은 db에서 가져와야 함. 임시 하드코딩
+        HttpClient client = HttpClient.newHttpClient();
 
+        HttpRequest request = HttpRequest.newBuilder()
+                              .uri(URI.create(URL))
+                              .GET()
+                              .build();
 
-    String URL = "https://api.open-meteo.com/v1/forecast"
-                +"?latitude="+a //위도
-                +"&longitude="+b //경도
-                +"&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
-                +"precipitation,precipitation_probability,weather_code,wind_speed_10m"
-                +"&timezone=Asia%2FSeoul&forecast_days=1";
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-    //URL값으로 JSON을 돌려받고, 받은 JSON을 넣는 것은 Service에서 해결
+        if (response.statusCode() != 200) {
+            throw new IOException("API 요청 실패: " + response.statusCode());
+        }
+
+        return response.body();
+
+    }
 }

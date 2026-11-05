@@ -1,8 +1,11 @@
 package com.weather.WeatherToWear.dto;
 
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
 public class WeatherDTO {
     private String region_code;
     private LocalDateTime time;
