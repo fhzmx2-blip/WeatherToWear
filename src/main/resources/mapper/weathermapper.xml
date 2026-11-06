@@ -7,17 +7,28 @@
 
     <insert id="weatherUpdate">
         INSERT INTO weather
-        VALUES (
-            #{region_code},
-            #{time},
-            #{temperature},
-            #{apparent_temperature},
-            #{relative_humidity},
-            #{precipitation_mm},
-            #{precipitation_probability},
-            #{weather_code},
-            #{wind_speed}
-        )
+        VALUES
+        <foreach collection="weatherList" item="weather" separator=",">
+            (
+            #{weather.region_code},
+            #{weather.time},
+            #{weather.temperature},
+            #{weather.apparent_temperature},
+            #{weather.relative_humidity},
+            #{weather.precipitation_mm},
+            #{weather.precipitation_probability},
+            #{weather.weather_code},
+            #{weather.wind_speed}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            temperature = VALUES(temperature),
+            apparent_temperature = VALUES(apparent_temperature),
+            relative_humidity = VALUES(relative_humidity),
+            precipitation_mm = VALUES(precipitation_mm),
+            precipitation_probability = VALUES(precipitation_probability),
+            weather_code = VALUES(weather_code),
+            wind_speed = VALUES(wind_speed)
     </insert>
 
 

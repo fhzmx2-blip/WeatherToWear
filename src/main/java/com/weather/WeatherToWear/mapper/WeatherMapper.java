@@ -1,9 +1,12 @@
 package com.weather.WeatherToWear.mapper;
 
 import com.weather.WeatherToWear.dto.WeatherDTO;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-public interface WeatherMapper {
+import java.util.List;
 
-    public WeatherDTO weatherUpdate();
+@Mapper
+public interface WeatherMapper {
+    void weatherUpdate(@Param("weatherList") List<WeatherDTO> weatherList);
 }
