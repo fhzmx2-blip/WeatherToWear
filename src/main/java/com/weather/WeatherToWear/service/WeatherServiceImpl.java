@@ -26,7 +26,6 @@ public class WeatherServiceImpl implements WeatherService {
     @Override
     @Scheduled(fixedRate = 3600000)
     public void weatherUpdate() {
-
         System.out.println("날씨 입력 시작");
 
         List<RegionVO> regionList = regionMapper.getRegionList();
@@ -77,8 +76,16 @@ public class WeatherServiceImpl implements WeatherService {
                 ex.printStackTrace();
             }
         }
-
         System.out.println("날씨 입력 종료");
+    }
 
+    @Override
+    public List<WeatherDTO> getWeatherList(String regionCode) {
+        LocalDateTime startTime = LocalDateTime.now()
+                                  .withMinute(0)
+                                  .withSecond(0)
+                                  .withNano(0);
+
+        return weatherMapper.getWeatherList(regionCode, startTime);
     }
 }

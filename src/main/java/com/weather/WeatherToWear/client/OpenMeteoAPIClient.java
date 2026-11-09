@@ -21,7 +21,7 @@ public class OpenMeteoAPIClient {
                 + "&longitude=" + longitude //경도
                 + "&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
                 + "precipitation,precipitation_probability,weather_code,wind_speed_10m"
-                + "&timezone=Asia%2FSeoul&forecast_days=1";
+                + "&timezone=Asia%2FSeoul&forecast_days=2";
 
         HttpClient client = HttpClient.newHttpClient();
 
@@ -33,7 +33,9 @@ public class OpenMeteoAPIClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            throw new IOException("API 요청 실패: " + response.statusCode());
+            throw new IOException(
+                    "API 요청 실패: " + response.statusCode() + ", 응답 내용: " + response.body()
+            );
         }
 
         return response.body();

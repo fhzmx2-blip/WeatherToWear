@@ -31,5 +31,14 @@
             wind_speed = VALUES(wind_speed)
     </insert>
 
+    <select id="getWeatherList" resultType="com.weather.WeatherToWear.dto.WeatherDTO">
+        SELECT *
+        FROM weather
+        WHERE region_code = #{regionCode}
+        AND time >= #{startTime}
+        ORDER BY time ASC
+        LIMIT 24
+    </select>
+
 
 </mapper>
