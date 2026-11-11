@@ -5,4 +5,15 @@
 
 <mapper namespace="com.weather.WeatherToWear.mapper.MemberMapper">
 
+    <select id="findByMemberId" resultType="com.weather.WeatherToWear.vo.MemberVO">
+        SELECT
+            member_id,
+            password,
+            nickname,
+            gender,
+            created_at
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
 </mapper>
