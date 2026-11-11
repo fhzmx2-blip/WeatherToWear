@@ -27,7 +27,10 @@ public class SecurityConfig {
             //csrf 보호 기능 유지, 공격에 대비하는 내용은 프론트와의 연결 부분을 만들고 나서 추가
             //예외 발생 역시 이후에 추가
             .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.spa())
+            .csrf(csrf -> {
+                csrf.spa();
+                csrf.ignoringRequestMatchers("/api/auth/login");
+            })
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
