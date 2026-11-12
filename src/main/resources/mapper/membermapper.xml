@@ -16,4 +16,19 @@
         WHERE member_id = #{memberId}
     </select>
 
+    <insert id="insertMember">
+        INSERT INTO member (
+            member_id,
+            password,
+            nickname,
+            gender
+            )
+        VALUES (
+            #{member_id},
+            #{password},
+            #{nickname},
+            #{gender}
+        )
+    </insert>
+
 </mapper>
