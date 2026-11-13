@@ -2,6 +2,7 @@ package com.weather.WeatherToWear.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,15 +30,29 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> {
                 csrf.spa();
-                csrf.ignoringRequestMatchers("/api/auth/login");
+                csrf.ignoringRequestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/withdraw");
             })
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .exceptionHandling(exception -> exception
+                    .authenticationEntryPoint((request, response, authException) -> {
+                        System.out.println("===== 인증 실패 =====");
+                        System.out.println("요청 URL: " + request.getRequestURI());
+                        System.out.println("요청 메서드: " + request.getMethod());
+                        System.out.println("실패 원인: " + authException.getMessage());
+
+                        response.sendError(
+                                HttpStatus.UNAUTHORIZED.value(),
+                                "인증이 필요합니다."
+                        );
+                    })
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/signup").permitAll()
                 .requestMatchers("/api/weather").permitAll()
+                .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2

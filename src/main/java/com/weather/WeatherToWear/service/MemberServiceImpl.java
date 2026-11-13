@@ -73,4 +73,13 @@ public class MemberServiceImpl implements MemberService {
 
         memberMapper.insertMember(member);
     }
+
+    @Override
+    public void withdraw(String memberId) {
+        int result = memberMapper.deleteMember(memberId);
+
+        if (result == 0) {
+            throw new IllegalArgumentException("탈퇴할 회원 정보를 찾을 수 없습니다.");
+        }
+    }
 }

@@ -10,4 +10,5 @@ public interface MemberService {
     MemberVO findByMemberId(String memberId);
     public LoginResponse login(LoginRequest loginRequest);
     void signup(SignupRequest signupRequest);
+    void withdraw(String memberId);
 }

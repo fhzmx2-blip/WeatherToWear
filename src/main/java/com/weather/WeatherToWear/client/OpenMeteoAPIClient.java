@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 
 @Component
 public class OpenMeteoAPIClient {
@@ -23,10 +24,15 @@ public class OpenMeteoAPIClient {
                 + "precipitation,precipitation_probability,weather_code,wind_speed_10m"
                 + "&timezone=Asia%2FSeoul&forecast_days=2";
 
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(15))
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
 
         HttpRequest request = HttpRequest.newBuilder()
                               .uri(URI.create(URL))
+                              .timeout(Duration.ofSeconds(30))
+                              .header("Accept", "application/json")
                               .GET()
                               .build();
 

@@ -8,4 +8,5 @@ import org.apache.ibatis.annotations.Param;
 public interface MemberMapper {
     MemberVO findByMemberId(@Param("memberId") String memberId);
     int insertMember(MemberVO member);
+    int deleteMember(@Param("memberId") String memberId);
 }
