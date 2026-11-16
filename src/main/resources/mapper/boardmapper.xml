@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weather.WeatherToWear.mapper.BoardMapper">
+
+    <insert id="insertBoard" parameterType="com.weather.WeatherToWear.vo.BoardVO" useGeneratedKeys="true" keyProperty="board_id">
+        INSERT INTO board (
+            member_id,
+            nickname,
+            title,
+            content,
+            image_url,
+            image_public_id,
+            image_size
+        )
+        VALUES (
+            #{member_id},
+            #{nickname},
+            #{title},
+            #{content},
+            #{image_url},
+            #{image_public_id},
+            #{image_size}
+        )
+    </insert>
+
+    <select id="selectBoardList"
+            resultType="com.weather.WeatherToWear.vo.BoardVO">
+        SELECT *
+        FROM board
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'all'">
+                        AND (
+                            title LIKE CONCAT('%', #{keyword}, '%')
+                            OR content LIKE CONCAT('%', #{keyword}, '%')
+                            OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                        )
+                    </when>
+
+                    <when test="searchType == 'title'">
+                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+
+                    <when test="searchType == 'content'">
+                        AND content LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+
+                    <when test="searchType == 'writer'">
+                        AND nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectBoardDetail" resultType="com.weather.WeatherToWear.vo.BoardVO">
+        SELECT * FROM board
+        WHERE board_id = #{boardId}
+    </select>
+
+    <update id="updateBoard" parameterType="com.weather.WeatherToWear.vo.BoardVO">
+        UPDATE board
+        SET
+            title = #{title},
+            content = #{content},
+            image_url = #{image_url},
+            image_public_id = #{image_public_id},
+            image_size = #{image_size}
+            WHERE board_id = #{board_id}
+            AND member_id = #{member_id}
+    </update>
+
+    <delete id="deleteBoard">
+        DELETE FROM board
+        WHERE board_id = #{boardId}
+        AND member_id = #{memberId}
+    </delete>
+
+
+
+    <!-- 댓글 -->
+    <insert id="insertComment" parameterType="com.weather.WeatherToWear.vo.CommentVO" useGeneratedKeys="true" keyProperty="comment_id">
+        INSERT INTO board_comment (
+            board_id,
+            member_id,
+            nickname,
+            content
+        )
+        VALUES (
+            #{board_id},
+            #{member_id},
+            #{nickname},
+            #{content}
+        )
+    </insert>
+
+    <select id="selectCommentList" resultType="com.weather.WeatherToWear.vo.CommentVO">
+        SELECT * FROM board_comment
+        WHERE board_id = #{boardId}
+        ORDER BY created_at ASC
+    </select>
+
+    <delete id="deleteComment">
+        DELETE FROM board_comment
+        WHERE comment_id = #{commentId}
+        AND member_id = #{memberId}
+    </delete>
+
+
+</mapper>

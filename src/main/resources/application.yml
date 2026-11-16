@@ -13,3 +13,7 @@ mybatis:
 jwt:
   secret: ${JWT_SECRET}
   access-token-expiration: 900000
+cloudinary:
+  cloud-name: ekfbpizi
+  api-key: 727582415944147
+  api-secret: ${IMG_KEY}
