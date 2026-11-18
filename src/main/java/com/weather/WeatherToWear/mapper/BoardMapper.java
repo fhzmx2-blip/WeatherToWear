@@ -9,16 +9,16 @@ import java.util.List;
 
 @Mapper
 public interface BoardMapper {
-    int insertBoard(BoardVO board);
-    List<BoardVO> selectBoardList(@Param("searchType") String searchType, @Param("keyword") String keyword);
+    int countBoardList(@Param("searchType") String searchType,@Param("keyword") String keyword);
+    List<BoardVO> selectBoardList(@Param("searchType") String searchType, @Param("keyword") String keyword,
+            @Param("pageSize") int pageSize, @Param("offset") int offset);
     BoardVO selectBoardDetail(@Param("boardId") Long boardId);
+    int insertBoard(BoardVO board);
     int updateBoard(BoardVO board);
     int deleteBoard(@Param("boardId") Long boardId, @Param("memberId") String memberId);
 
-    List<CommentVO> selectCommentList(@Param("boardId") Long boardId);
+    int countCommentList(@Param("boardId") Long boardId);
+    List<CommentVO> selectCommentList(@Param("boardId") Long boardId, @Param("pageSize") int pageSize, @Param("offset") int offset);
     int insertComment(CommentVO comment);
-    int deleteComment(
-            @Param("commentId") Long commentId,
-            @Param("memberId") String memberId
-    );
+    int deleteComment(@Param("commentId") Long commentId, @Param("memberId") String memberId);
 }

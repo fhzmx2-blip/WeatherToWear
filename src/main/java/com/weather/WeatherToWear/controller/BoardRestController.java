@@ -3,6 +3,7 @@ package com.weather.WeatherToWear.controller;
 
 import com.weather.WeatherToWear.service.BoardService;
 import com.weather.WeatherToWear.vo.BoardVO;
+import com.weather.WeatherToWear.vo.CommentVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/board")
@@ -20,12 +21,13 @@ public class BoardRestController {
     private final BoardService boardService;
 
     @GetMapping
-    public ResponseEntity<List<BoardVO>> getBoardList(
+    public ResponseEntity<Map<String, Object>> getBoardList(
             @RequestParam(defaultValue = "all") String searchType,
-            @RequestParam(defaultValue = "") String keyword) {
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page) {
 
         return ResponseEntity.ok(
-                boardService.getBoardList(searchType, keyword)
+                boardService.getBoardList(searchType, keyword, page)
         );
     }
 
@@ -88,6 +90,52 @@ public class BoardRestController {
         }
 
         boardService.deleteBoard(boardId, jwtMemberId);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    //댓글
+    @GetMapping("/{boardId}/comments")
+    public ResponseEntity<Map<String, Object>> getCommentList(
+            @PathVariable Long boardId,
+            @RequestParam(defaultValue = "1") int page) {
+
+        return ResponseEntity.ok(
+                boardService.getCommentList(boardId, page)
+        );
+    }
+
+    @PostMapping("/{boardId}/comments")
+    public ResponseEntity<Void> writeComment(
+            @PathVariable Long boardId,
+            @RequestBody CommentVO comment,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        comment.setBoard_id(boardId);
+
+        boardService.writeComment(
+                comment,
+                jwt.getSubject()
+        );
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long boardId,
+            @PathVariable Long commentId,
+            @RequestParam String memberId,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String jwtMemberId = jwt.getSubject();
+
+        if (!jwtMemberId.equals(memberId)) {
+            throw new IllegalArgumentException("회원 정보가 일치하지 않습니다.");
+        }
+
+        boardService.deleteComment(commentId, jwtMemberId);
 
         return ResponseEntity.ok().build();
     }

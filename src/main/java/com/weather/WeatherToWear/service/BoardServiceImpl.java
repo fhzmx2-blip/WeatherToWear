@@ -25,13 +25,30 @@ public class BoardServiceImpl implements BoardService {
 
     //게시글
     @Override
-    public List<BoardVO> getBoardList(String searchType, String keyword) {
+    public Map<String, Object> getBoardList(String searchType, String keyword, int page) {
         if (searchType == null ||
                 !List.of("all", "title", "content", "writer").contains(searchType)) {
             throw new IllegalArgumentException("올바르지 않은 검색 유형입니다.");
         }
 
-        return boardMapper.selectBoardList(searchType, keyword);
+        int pageSize = 10;
+        int blockSize = 10;
+        int totalCount = boardMapper.countBoardList(searchType, keyword);
+
+        int[] pageInfo = pagination(page, pageSize, blockSize, totalCount);
+
+        List<BoardVO> list = boardMapper.selectBoardList(
+                searchType, keyword, pageSize, pageInfo[4]
+        );
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("list", list);
+        result.put("currentPage", pageInfo[0]);
+        result.put("totalPage", pageInfo[1]);
+        result.put("startPage", pageInfo[2]);
+        result.put("endPage", pageInfo[3]);
+
+        return result;
     }
 
     @Override
@@ -100,7 +117,7 @@ public class BoardServiceImpl implements BoardService {
                 deleteBoardImage(board.getImage_public_id());
             }
 
-            throw new IllegalArgumentException("게시글 수정에 실패했습니다.");
+            throw new IllegalArgumentException("게시글 수정에 실패했거나 변경된 내용이 없습니다.");
         }
 
         if (file != null && !file.isEmpty()) {
@@ -134,8 +151,25 @@ public class BoardServiceImpl implements BoardService {
 
     //댓글
     @Override
-    public List<CommentVO> getCommentList(Long boardId) {
-        return boardMapper.selectCommentList(boardId);
+    public Map<String, Object> getCommentList(Long boardId, int page) {
+        int pageSize = 20;
+        int blockSize = 10;
+        int totalCount = boardMapper.countCommentList(boardId);
+
+        int[] pageInfo = pagination(page, pageSize, blockSize, totalCount);
+
+        List<CommentVO> list = boardMapper.selectCommentList(
+                boardId, pageSize, pageInfo[4]
+        );
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("list", list);
+        result.put("currentPage", pageInfo[0]);
+        result.put("totalPage", pageInfo[1]);
+        result.put("startPage", pageInfo[2]);
+        result.put("endPage", pageInfo[3]);
+
+        return result;
     }
 
     @Override
@@ -227,5 +261,28 @@ public class BoardServiceImpl implements BoardService {
         if (comment.getContent().length() > 1000) {
             throw new IllegalArgumentException("댓글은 1000자 이하로 입력해 주세요.");
         }
+    }
+
+    private int[] pagination(int page, int pageSize, int blockSize, int totalCount) {
+        int totalPage = (totalCount + pageSize - 1) / pageSize;
+
+        int currentPage = page;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+        if (totalPage > 0 && currentPage > totalPage) {
+            currentPage = totalPage;
+        }
+
+        int startPage = ((currentPage - 1) / blockSize) * blockSize + 1;
+
+        int endPage = startPage + blockSize - 1;
+        if (endPage > totalPage) {
+            endPage = totalPage;
+        }
+
+        int offset = (currentPage - 1) * pageSize;
+
+        return new int[]{currentPage, totalPage, startPage, endPage, offset};
     }
 }

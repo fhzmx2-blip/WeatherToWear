@@ -4,26 +4,32 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.weather.WeatherToWear.mapper.BoardMapper">
 
-    <insert id="insertBoard" parameterType="com.weather.WeatherToWear.vo.BoardVO" useGeneratedKeys="true" keyProperty="board_id">
-        INSERT INTO board (
-            member_id,
-            nickname,
-            title,
-            content,
-            image_url,
-            image_public_id,
-            image_size
-        )
-        VALUES (
-            #{member_id},
-            #{nickname},
-            #{title},
-            #{content},
-            #{image_url},
-            #{image_public_id},
-            #{image_size}
-        )
-    </insert>
+    <select id="countBoardList" resultType="int">
+        SELECT COUNT(*)
+        FROM board
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'all'">
+                        AND (
+                        title LIKE CONCAT('%', #{keyword}, '%')
+                        OR content LIKE CONCAT('%', #{keyword}, '%')
+                        OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                        )
+                    </when>
+                    <when test="searchType == 'title'">
+                        AND title LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'content'">
+                        AND content LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'writer'">
+                        AND nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
 
     <select id="selectBoardList"
             resultType="com.weather.WeatherToWear.vo.BoardVO">
@@ -55,12 +61,34 @@
             </if>
         </where>
         ORDER BY created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <select id="selectBoardDetail" resultType="com.weather.WeatherToWear.vo.BoardVO">
         SELECT * FROM board
         WHERE board_id = #{boardId}
     </select>
+
+    <insert id="insertBoard" parameterType="com.weather.WeatherToWear.vo.BoardVO" useGeneratedKeys="true" keyProperty="board_id">
+        INSERT INTO board (
+        member_id,
+        nickname,
+        title,
+        content,
+        image_url,
+        image_public_id,
+        image_size
+        )
+        VALUES (
+        #{member_id},
+        #{nickname},
+        #{title},
+        #{content},
+        #{image_url},
+        #{image_public_id},
+        #{image_size}
+        )
+    </insert>
 
     <update id="updateBoard" parameterType="com.weather.WeatherToWear.vo.BoardVO">
         UPDATE board
@@ -83,6 +111,20 @@
 
 
     <!-- 댓글 -->
+    <select id="countCommentList" resultType="int">
+        SELECT COUNT(*)
+        FROM board_comment
+        WHERE board_id = #{boardId}
+    </select>
+
+    <select id="selectCommentList" resultType="com.weather.WeatherToWear.vo.CommentVO">
+        SELECT *
+        FROM board_comment
+        WHERE board_id = #{boardId}
+        ORDER BY created_at ASC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
     <insert id="insertComment" parameterType="com.weather.WeatherToWear.vo.CommentVO" useGeneratedKeys="true" keyProperty="comment_id">
         INSERT INTO board_comment (
             board_id,
@@ -97,12 +139,6 @@
             #{content}
         )
     </insert>
-
-    <select id="selectCommentList" resultType="com.weather.WeatherToWear.vo.CommentVO">
-        SELECT * FROM board_comment
-        WHERE board_id = #{boardId}
-        ORDER BY created_at ASC
-    </select>
 
     <delete id="deleteComment">
         DELETE FROM board_comment
